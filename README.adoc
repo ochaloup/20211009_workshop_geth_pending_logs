@@ -1,1 +1,133 @@
-# 20211009_workshop_geth_pending_logs
+= 20211009_workshop_geth_pending_logs
+
+== Task
+
+TODO: make changes in Geth source code around websocket subscriptions and verify the changes work
+
+== Steps
+
+. Get Geth client sources and compile
++
+Geth sources are available at github at https://github.com/ethereum/go-ethereum
++
+[source,bash]
+----
+git clone https://github.com/ethereum/go-ethereum
+cd go-ethereum
+make geth
+----
++
+After succesful compilation the Geth binaries can be found at `build/bin/`
++
+[source,bash]
+----
+export PATH=$PATH:"$PWD/build/bin"
+----
++
+NOTE: the recommended steps to build on various OS are in the documentation at https://geth.ethereum.org/docs/install-and-build/installing-geth#build-go-ethereum-from-source-code
++
+. Start Geth client on localhost
++
+To start the Geth and then to "play" with the private network we need
++
+.. To create an account(s) that can be pre-funded and used for transfers and contract calls
+(see https://geth.ethereum.org/docs/interface/managing-your-accounts)
++
+[source,bash]
+----
+mkdir data
+DATADIR="$PWD/data"
+geth account new --datadir "$DATADIR" --password <(echo 'P422wORd')
+# note down the public address of the created key
+
+# each account created stores a key in keystore under $DATADIR 
+tree "$DATADIR"/keystore
+----
++
+NOTE: Supplying the password directly as part of the command line is not recommended
++
+.. To define a genesis block and define the balance of the accounts
++
+The genesis block is a `json` configuration that can be generated with `puppeth` binary
+or copied as it is as an example from https://geth.ethereum.org/docs/interface/private-network#creating-the-genesis-block[documentation].
++
+[source,bash]
+----
+./puppeth --network=myprivatenetwork
+# console asks interactively about actions to take
+# we want only the genesis block being generated
+
+...
+
+INFO [...] Administering Ethereum network           name=myprivatenetwork
+WARN [...] No previous configurations found         path=$HOME/.puppeth/myprivatenetwork
+
+What would you like to do? (default = stats)
+ 1. Show network stats
+ 2. Configure new genesis
+ 3. Track new remote server
+ 4. Deploy network components
+> 2
+
+What would you like to do? (default = create)
+ 1. Create new genesis from scratch
+ 2. Import already existing genesis
+> 1
+
+Which consensus engine to use? (default = clique)
+ 1. Ethash - proof-of-work
+ 2. Clique - proof-of-authority
+> 1
+
+Which accounts should be pre-funded? (advisable at least one)
+> 0x72B152b9cCC40BE2a04F4075a1457cF8f753F7c9      
+> 0x
+
+Should the precompile-addresses (0x1 .. 0xff) be pre-funded with 1 wei? (advisable yes)
+> n
+
+Specify your chain/network ID if you want an explicit one (default = random)
+> 
+INFO [...] Configured new genesis block 
+
+What would you like to do? (default = stats)
+ 1. Show network stats
+ 2. Manage existing genesis
+ 3. Track new remote server
+ 4. Deploy network components
+> 2
+
+ 1. Modify existing configurations
+ 2. Export genesis configurations
+ 3. Remove genesis configuration
+> 2
+
+Which folder to save the genesis specs into? (default = current)
+  Will create myprivatenetwork.json, myprivatenetwork-aleth.json, myprivatenetwork-harmony.json, myprivatenetwork-parity.json
+> data/genesis
+INFO [...] Saved native genesis chain spec          path=data/genesis/myprivatenetwork.json
+INFO [...] Saved genesis chain spec                 client=aleth path=data/genesis/myprivatenetwork-aleth.json
+INFO [...] Saved genesis chain spec                 client=parity path=data/genesis/myprivatenetwork-parity.json
+INFO [...] Saved genesis chain spec                 client=harmony path=data/genesis/myprivatenetwork-harmony.json
+
+> ^C
+----
++
+We defined the 'proof-of-work' to be used and provide the address of the created
+account to be pre-funded.
++
+The configuraiton of the genesis block is exported under `data/genesis`
+(`puppeth` stores the configuration under `$HOME/.puppeth/myprivatenetwork`).
+.. Initialize Geth with the genesis block configuration
++
+[source,bash]
+----
+geth init --datadir "$DATADIR" "$DATADIR"/myprivatenetwork.json
+----
++
+.. Starting Geth
++
+[source,bash]
+----
+
+----
