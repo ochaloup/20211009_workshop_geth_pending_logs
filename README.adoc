@@ -186,6 +186,7 @@ NOTE: as a shortcut of running geth at localhost one may use
 geth attach http://localhost:8545
 # or via local IPC (inter-process-communication)
 geth attach "$DATADIR/geth.ipc"
+# the other way of communication are websockets
 ----
 +
 List available accounts and transfer funds
@@ -237,39 +238,75 @@ contract = abi.new("TEST", deploy)
 contract.address
 ----
 +
-. Calling contract by calling with the transaction
+. Send a transaction to the contract to call it
 +
 [source,javascript]
 ----
 eth.sendTransaction({from:"0x72B152b9cCC40BE2a04F4075a1457cF8f753F7c9", to:contract.address, value: "0"})
 ----
-
-
-
-
-TODO: subscribe to events
-
-https://eth.wiki/json-rpc/API#eth_newfilter
-
-[source,javascript]
++
+Subscribe to log events
++
+One can use a the https://eth.wiki/json-rpc/API#eth_newfilter[JSONRPC API] (a stateless, remote procedure call protocol)
+or the https://geth.ethereum.org/docs/rpc/pubsub[pub/sub subscription] to listen to log events in Geth.
++
+NOTE: You can see the https://github.com/ethereum/go-ethereum/blob/v1.10.9/eth/filters/api.go#L298[Geth sources] where
+the filter creation done.
++
+We can go with JSON-RPC notifications connecting via websockets.
+As an example we can be listening to mined log events. Geth default WS port is `8546`.
++
+[source,bash]
 ----
-options = {
-    fromBlock: 0,
-    address: [],    // get events from specific addresses
-    topics: []      // topics to subscribe to
-};
+wscat -c ws://localhost:8546
 
-options = {
-    fromBlock: 0,
-    
-  "fromBlock": "0x1",
-  "toBlock": "0x2",
-  "address": "0x8888f1f195afa192cfee860698584c030f4c9db1",
-  "topics": ["0x000000000000000000000000a94f5374fce5edbc8e2a8697c15331677e6ebf0b", null, ["0x000000000000000000000000a94f5374fce5edbc8e2a8697c15331677e6ebf0b", "0x0000000000000000000000000aff3454fce5edbc8cca8697c15331677e6ebccc"]]
-}]
+> {"id": 1, "method": "eth_subscribe", "params": ["logs", {}]}
+< {"jsonrpc":"2.0","id":1,"result":"0xb7982a3cc6c82c3147d49076a7cae610"}
 
-(err,event) => {
-    if (!err)
-    console.log(event)
-}
+# to get the log emitted there has to be called a contract with a event log emitted
+# run from other console 'geth attach ...'
+eth.sendTransaction({from:"0x72B152b9cCC40BE2a04F4075a1457cF8f753F7c9", to:contract.address, value: "0"})
+
+< {"jsonrpc":"2.0","method":"eth_subscription","params":{"subscription":"0xb7982a3cc6c82c3147d49076a7cae610","result":{"address":"0x6181123d2c0b58ee9d65b89dab64d4611af21b26","topics":["0x030cacc26fa09af329d921d39728c2e63d3e54b638293f4d3d4b474dd96750f3","0x00000000000000000000000072b152b9ccc40be2a04f4075a1457cf8f753f7c9"],"data":"0x0000000000000000000000000000000000000000000000000000000000000030","blockNumber":"0xafe","transactionHash":"0x0c31eaaa4e19cf590228102d55295b3787c0757f7c12d8824426b78475a84265","transactionIndex":"0x0","blockHash":"0x8f257f83d21ecf61246474d6d7d919d273c37661f06de16361803b5663d4ca81","logIndex":"0x0","removed":false}}}
+----
++
+[NOTE]
+====
+The log shows the event emitted from link:contracts/EchoContract.sol[`Echo` contract].
+First topic is the name of the function hashed with https://emn178.github.io/online-tools/keccak_256.html[`keccac-256`].
+
+`keccac_256("Echo(address,uint256)")` resutls in hash `030cacc26fa09af329d921d39728c2e63d3e54b638293f4d3d4b474dd96750f3`
+ which is the value of the topic value.
+ 
+ The second value `0x00000000000000000000000072b152b9ccc40be2a04f4075a1457cf8f753f7c9` is the
+ `from` address padded to 32 bytes with `0`s.
+
+The data contains the value of the `counter` variable as a hex number `0x30` is `printf %d '0x30'` which is 48.
+====
++
+In the similar way we can listen to the logs from the Geth console with the `eth` object.
++
+[source,bash]
+----
+geth attach http://localhost:8485
+
+eth.filter("pending", function(err,txn) { console.log('Pending txn: ' + txn);})
+eth.filter("latest", function(err,block) { console.log('Latest block: ' + block);})
+
+eth.sendTransaction({from:"0x72B152b9cCC40BE2a04F4075a1457cF8f753F7c9", to:contract.address, value: "0"})
+> Pending txn: 0xb8d5970948cf1177bdf9670029fa26e0f313e20a8752932de6636b3dc848cfb7
+> Latest block: 0x771adf4c6dd52936801dd13b62311f9522546f8d91b99d432ccdb085d3b80025
+
+eth.getTransactionReceipt('0xb8d5970948cf1177bdf9670029fa26e0f313e20a8752932de6636b3dc848cfb7')
+----
++
+To use the JSON-RPC polling mechanism
++
+[source,bash]
+----
+curl -X POST localhost:8545 -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_newFilter","params":[{}],"id":1}'
+{"jsonrpc":"2.0","id":1,"result":"0xda402a379872cbd2dfc8016a4c60ff88"}
+
+# any next call returns only the new changes
+curl -X POST localhost:8545 -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_getFilterChanges","params":["0xda402a379872cbd2dfc8016a4c60ff88"],"id":1}'
 ----
