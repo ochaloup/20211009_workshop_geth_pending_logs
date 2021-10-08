@@ -201,7 +201,7 @@ web3.fromWei(eth.getBalance(eth.accounts[1]), "ether")
 +
 . Create a simple Solidity contract that emit log events
 +
-`EchoContract` is available at link:contracts/EchoContract.sol
+`EchoContract` is available at link:./contracts/EchoContract.sol
 +
 . Build the contract
 +
@@ -277,7 +277,7 @@ eth.sendTransaction({from:"0x72B152b9cCC40BE2a04F4075a1457cF8f753F7c9", to:contr
 +
 [NOTE]
 ====
-The log shows the event emitted from link:contracts/EchoContract.sol[`Echo` contract].
+The log shows the event emitted from link:./contracts/EchoContract.sol[`Echo` contract].
 First topic is the name of the function hashed with https://emn178.github.io/online-tools/keccak_256.html[`keccac-256`].
 
 `keccac_256("Echo(address,uint256)")` resutls in hash `030cacc26fa09af329d921d39728c2e63d3e54b638293f4d3d4b474dd96750f3`
@@ -317,12 +317,12 @@ curl -X POST localhost:8545 -H "Content-Type: application/json" --data '{"jsonrp
 curl -X POST localhost:8545 -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_getFilterChanges","params":["0xda402a379872cbd2dfc8016a4c60ff88"],"id":1}'
 ----
 +
-. Stop mining and listening to log events
+. Stop mining and start listening to log events
 +
 [source,bash]
 ----
 # console [1]
-geth attach data2/geth.ipc
+geth attach "$DATADIR"/geth.ipc
 > miner.stop()
 
 # console [2]
