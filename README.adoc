@@ -2,7 +2,13 @@
 
 == Task
 
-TODO: make changes in Geth source code around websocket subscriptions and verify the changes work
+Learn how to start working with Geth
+
+* Download Geth
+* Start Geth node
+* Deploy a contract
+* Work with Geth JavaScript console
+* Subscribe to Geth events
 
 == Steps
 
@@ -327,7 +333,7 @@ geth attach "$DATADIR"/geth.ipc
 
 # console [2]
 wscat -c ws://localhost:8546
-{"id": 1, "method": "eth_subscribe", "params": ["logs", {"FromBlock":"pending","ToBlock":"pending"}]}
+> {"id": 1, "method": "eth_subscribe", "params": ["logs", {"FromBlock":"pending","ToBlock":"pending"}]}
 
 # console [1]
 eth.sendTransaction({from:"0x72B152b9cCC40BE2a04F4075a1457cF8f753F7c9", to:contract.address, value: "0"})
@@ -339,4 +345,14 @@ eth.sendTransaction({from:"0x72B152b9cCC40BE2a04F4075a1457cF8f753F7c9", to:contr
 # console[1]
 # mining can be started again
 > miner.start(1)
+----
+
+We did some changes around filters and pending transaction logs here
+https://github.com/ochaloup/go-ethereum/commits/filter-with-txn-data-instead-of-hashes
+
+[source,bash]
+----
+wscat -c ws://localhost:8546
+
+> {"id": 1, "method": "eth_subscribe", "params": ["newFilteredTransactions", {"method": "0xabcdefg"}]}
 ----
