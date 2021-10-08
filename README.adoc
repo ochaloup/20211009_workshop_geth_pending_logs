@@ -245,13 +245,15 @@ contract.address
 eth.sendTransaction({from:"0x72B152b9cCC40BE2a04F4075a1457cF8f753F7c9", to:contract.address, value: "0"})
 ----
 +
-Subscribe to log events
+. Subscribe to log events
 +
 One can use a the https://eth.wiki/json-rpc/API#eth_newfilter[JSONRPC API] (a stateless, remote procedure call protocol)
 or the https://geth.ethereum.org/docs/rpc/pubsub[pub/sub subscription] to listen to log events in Geth.
 +
 NOTE: You can see the https://github.com/ethereum/go-ethereum/blob/v1.10.9/eth/filters/api.go#L298[Geth sources] where
 the filter creation done.
++
+.. Pub/Sub WebSocket notification
 +
 We can go with JSON-RPC notifications connecting via websockets.
 As an example we can be listening to mined log events. Geth default WS port is `8546`.
@@ -260,7 +262,10 @@ As an example we can be listening to mined log events. Geth default WS port is `
 ----
 wscat -c ws://localhost:8546
 
+# for latest logs
 > {"id": 1, "method": "eth_subscribe", "params": ["logs", {}]}
+# for pending logs
+> {"id": 1, "method": "eth_subscribe", "params": ["logs", {"FromBlock":"pending","ToBlock":"pending"}]}
 < {"jsonrpc":"2.0","id":1,"result":"0xb7982a3cc6c82c3147d49076a7cae610"}
 
 # to get the log emitted there has to be called a contract with a event log emitted
@@ -297,10 +302,11 @@ eth.sendTransaction({from:"0x72B152b9cCC40BE2a04F4075a1457cF8f753F7c9", to:contr
 > Pending txn: 0xb8d5970948cf1177bdf9670029fa26e0f313e20a8752932de6636b3dc848cfb7
 > Latest block: 0x771adf4c6dd52936801dd13b62311f9522546f8d91b99d432ccdb085d3b80025
 
+# transaction receipt method shows data only when the block is mined
 eth.getTransactionReceipt('0xb8d5970948cf1177bdf9670029fa26e0f313e20a8752932de6636b3dc848cfb7')
 ----
 +
-To use the JSON-RPC polling mechanism
+.. JSON-RPC polling mechanism
 +
 [source,bash]
 ----
@@ -309,4 +315,27 @@ curl -X POST localhost:8545 -H "Content-Type: application/json" --data '{"jsonrp
 
 # any next call returns only the new changes
 curl -X POST localhost:8545 -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_getFilterChanges","params":["0xda402a379872cbd2dfc8016a4c60ff88"],"id":1}'
+----
++
+. Stop mining and listening to log events
+[source,bash]
+----
+# console [1]
+geth attach data2/geth.ipc
+> miner.stop()
+
+# console [2]
+wscat -c ws://localhost:8546
+{"id": 1, "method": "eth_subscribe", "params": ["logs", {"FromBlock":"pending","ToBlock":"pending"}]}
+
+# console [1]
+eth.sendTransaction({from:"0x72B152b9cCC40BE2a04F4075a1457cF8f753F7c9", to:contract.address, value: "0"})
+
+# console [2]
+# mining is stopped the pub/sub shows only pending data
+< {"jsonrpc":"2.0","method":"eth_subscription","params":{"subscription":"0x48cd156d84db63fc06c53f7967d4250","result":{"address":"0x6181123d2c0b58ee9d65b89dab64d4611af21b26","topics":["0x030cacc26fa09af329d921d39728c2e63d3e54b638293f4d3d4b474dd96750f3","0x00000000000000000000000072b152b9ccc40be2a04f4075a1457cf8f753f7c9"],"data":"0x0000000000000000000000000000000000000000000000000000000000000035","blockNumber":"0xce1","transactionHash":"0x35937de17d4c3e00515d7ebb3e7416f3ba0e1db8e48068fc81598fe54afb81a7","transactionIndex":"0x1","blockHash":"0x0030ab214b44d0a63abda188ac994326c07eeb5d3df04212ba2e3524a313e49f","logIndex":"0x1","removed":false}}}
+
+# console[1]
+# mining can be started again
+> miner.start(1)
 ----
