@@ -318,6 +318,7 @@ curl -X POST localhost:8545 -H "Content-Type: application/json" --data '{"jsonrp
 ----
 +
 . Stop mining and listening to log events
++
 [source,bash]
 ----
 # console [1]
