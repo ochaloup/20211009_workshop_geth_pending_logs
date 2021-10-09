@@ -78,12 +78,51 @@
                                <section id="fragments">
                                  <small>začátečníkův průvodce světem Gethu</small>
                                  <h2>hackujeme</h2>
+                                 <p class="fragment">motivace workshopu</p>
+                                 <p class="fragment">cíl</p>
+                               </section>
+
+                               <section id="fragments">
+                                 <small>začátečníkův průvodce světem Gethu</small>
+                                 <h2>hackujeme</h2>
                                  <p class="fragment"><em>Zdrojové kódy</em></p>
                                  <p class="fragment"><em>Startování Geth node</em></p>
                                  <p class="fragment"><em>Geth JavaScript konzole</em></p>
                                  <p class="fragment"><em>Práce s kontraktem</em></p>
                                  <p class="fragment"><em>Poslouchání událostí</em></p>
                                </section>
+
+                              <section>
+                                <pre><code>
+> eth.getTransactionReceipt("0x6b05c2c9afb5ff0d2fb6e5dbe3b8b01b6d19aeef5526482531f6bae081cfc6c5")
+{
+  blockHash: "0xb424dd497210906c411339789df1f0d73275f847de3e948a2ee32b5255cf2fa3",
+  blockNumber: 4071,
+  contractAddress: null,
+  cumulativeGasUsed: 29399,
+  effectiveGasPrice: 1000000000,
+  from: "0x72b152b9ccc40be2a04f4075a1457cf8f753f7c9",
+  gasUsed: 29399,
+  logs: [{
+      address: "0x6181123d2c0b58ee9d65b89dab64d4611af21b26",
+      blockHash: "0xb424dd497210906c411339789df1f0d73275f847de3e948a2ee32b5255cf2fa3",
+      blockNumber: 4071,
+      data: "0x0000000000000000000000000000000000000000000000000000000000000038",
+      logIndex: 0,
+      removed: false,
+      topics: ["0x030cacc26fa09af329d921d39728c2e63d3e54b638293f4d3d4b474dd96750f3", "0x00000000000000000000000072b152b9ccc40be2a04f4075a1457cf8f753f7c9"],
+      transactionHash: "0x6b05c2c9afb5ff0d2fb6e5dbe3b8b01b6d19aeef5526482531f6bae081cfc6c5",
+      transactionIndex: 0
+  }],
+  logsBloom: "0x00000000000000040000000000000000000000000100000000000000000000000008000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002000000000000001000000000000000008000000000000000000000008000000000000000000000000000000000000000000000000000100000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+  status: "0x1",
+  to: "0x6181123d2c0b58ee9d65b89dab64d4611af21b26",
+  transactionHash: "0x6b05c2c9afb5ff0d2fb6e5dbe3b8b01b6d19aeef5526482531f6bae081cfc6c5",
+  transactionIndex: 0,
+  type: "0x0"
+}
+                                </code></pre>
+                              </section>
 
                         </div>
 

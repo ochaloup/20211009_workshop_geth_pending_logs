@@ -20,7 +20,8 @@ Geth sources are available at github at https://github.com/ethereum/go-ethereum
 ----
 git clone https://github.com/ethereum/go-ethereum
 cd go-ethereum
-make geth
+# make geth
+make all
 ----
 +
 After succesful compilation the Geth binaries can be found at `build/bin/`
@@ -59,7 +60,7 @@ or copied as it is as an example from https://geth.ethereum.org/docs/interface/p
 +
 [source,bash]
 ----
-./puppeth --network=myprivatenetwork
+puppeth --network=myprivatenetwork
 # console asks interactively about actions to take
 # we want only the genesis block being generated
 
