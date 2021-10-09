@@ -347,6 +347,15 @@ eth.sendTransaction({from:"0x72B152b9cCC40BE2a04F4075a1457cF8f753F7c9", to:contr
 > miner.start(1)
 ----
 
+== A bit to code
+
+* Filter subscription API: https://github.com/ethereum/go-ethereum/blob/v1.10.9/eth/filters/api.go#L298
+* Pending logs subscription: https://github.com/ethereum/go-ethereum/blob/v1.10.9/eth/filters/filter_system.go#L204
+* Events processing loop: https://github.com/ethereum/go-ethereum/blob/v1.10.9/eth/filters/filter_system.go#L443
+* RPC call to code with reflection: https://github.com/ethereum/go-ethereum/blob/v1.10.9/rpc/service.go#L184
+
+== Our coding experiments
+
 We did some changes around filters and pending transaction logs here
 https://github.com/ochaloup/go-ethereum/commits/filter-with-txn-data-instead-of-hashes
 
